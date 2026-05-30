@@ -1,6 +1,6 @@
 # email-gender-detector
 
-Narzędzie do wykrywania płci i uzupełniania imion na podstawie adresów email — oparte o oficjalne listy imion i nazwisk z rejestru PESEL (Ministerstwo Cyfryzacji, 2026).
+Narzędzie do wykrywania płci i uzupełniania imion na podstawie adresów email — oparte o oficjalne listy imion i nazwisk z rejestru PESEL.
 
 **Demo:** https://just-lukasz.github.io/email-gender-firstname-detector/
 
@@ -8,17 +8,16 @@ Narzędzie do wykrywania płci i uzupełniania imion na podstawie adresów email
 
 ## Co robi
 
-- Wykrywa płeć (`men` / `female`) dla ~75% rekordów
+- Wykrywa płeć (`men` / `female`)
 - Uzupełnia brakujące imiona z adresu email
-- Naprawia błędy w imionach (brak polskich znaków, wielkie litery, literówki)
+- Naprawia błędy w imionach (brak polskich znaków, brak wielkiej litery, tylko wielkie litery, literówki)
 - Działa **lokalnie w przeglądarce** — żadne dane nie opuszczają Twojego komputera
-- Listy PESEL pobierane automatycznie z api.dane.gov.pl
 
 ## Jak używać
 
 1. Wejdź na stronę
 2. Wgraj plik CSV ze swoją bazą emailową
-3. Zmapuj kolumny (email + opcjonalnie imię)
+3. Zmapuj kolumny (email + opcjonalnie imię - dla lepszego kontekstu)
 4. Kliknij "Uruchom analizę"
 5. Pobierz wynik
 
@@ -29,7 +28,6 @@ Plik CSV z dowolną nazwą, kodowanie UTF-8. Wymagana kolumna z adresami email. 
 ## Technologie
 
 - Czysty HTML + JavaScript (zero frameworków, zero serwera)
-- Dane: [dane.gov.pl](https://dane.gov.pl) — Ministerstwo Cyfryzacji
 
 ## Licencja
 
