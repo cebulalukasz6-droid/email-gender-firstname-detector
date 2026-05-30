@@ -2,7 +2,7 @@
 
 Narzędzie do wykrywania płci i uzupełniania imion na podstawie adresów email — oparte o oficjalne listy imion i nazwisk z rejestru PESEL (Ministerstwo Cyfryzacji, 2026).
 
-**Demo:** [https://[twoja-nazwa].github.io/email-gender-detector](https://just-lukasz.github.io/email-gender-firstname-detector/)
+**Demo:** https://just-lukasz.github.io/email-gender-firstname-detector/
 
 ---
 
