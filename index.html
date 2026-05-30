@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Gender Detector</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0e0e10;
+    --bg2: #17171a;
+    --bg3: #1f1f24;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --text: #f0f0f0;
+    --muted: #888;
+    --accent: #7c6af7;
+    --accent2: #a594f9;
+    --green: #4ade80;
+    --green-bg: rgba(74,222,128,0.08);
+    --red: #f87171;
+    --amber: #fbbf24;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 1.5rem 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .logo {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  header h1 {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  header span {
+    font-size: 13px;
+    color: var(--muted);
+    margin-left: auto;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 3rem 2rem 6rem;
+  }
+
+  .hero {
+    margin-bottom: 3rem;
+  }
+
+  .hero h2 {
+    font-size: 2rem;
+    font-weight: 300;
+    letter-spacing: -0.04em;
+    line-height: 1.2;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+  }
+
+  .hero h2 strong {
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--accent2), #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero p {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.6;
+    max-width: 520px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--green-bg);
+    border: 1px solid rgba(74,222,128,0.2);
+    color: var(--green);
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    padding: 4px 10px;
+    border-radius: 100px;
+    margin-bottom: 1.5rem;
+  }
+
+  .badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+  }
+
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1.25rem;
+  }
+
+  .step-num {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .step-num.done {
+    background: var(--green);
+    color: #0e0e10;
+  }
+
+  .card-header h3 {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .card-header .subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: auto;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* Drop zone */
+  .dropzone {
+    border: 1.5px dashed var(--border2);
+    border-radius: 8px;
+    padding: 2.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--bg3);
+    position: relative;
+  }
+
+  .dropzone:hover, .dropzone.dragover {
+    border-color: var(--accent);
+    background: rgba(124,106,247,0.05);
+  }
+
+  .dropzone input[type=file] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+
+  .dropzone-icon {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    color: var(--muted);
+  }
+
+  .dropzone p {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .dropzone .hint {
+    font-size: 12px;
+    color: #555;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .dropzone.has-file {
+    border-color: var(--green);
+    border-style: solid;
+    background: var(--green-bg);
+  }
+
+  .dropzone.has-file p { color: var(--green); }
+
+  /* Column mapping */
+  .col-map {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .col-map label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .col-map .required::after {
+    content: ' *';
+    color: var(--accent2);
+  }
+
+  .col-map .optional-tag {
+    display: inline-block;
+    font-size: 10px;
+    color: var(--muted);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    padding: 1px 5px;
+    margin-left: 6px;
+    vertical-align: middle;
+    font-family: 'DM Mono', monospace;
+  }
+
+  select {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 8px 12px;
+    appearance: none;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.15s;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 30px;
+  }
+
+  select:focus { border-color: var(--accent); }
+  select:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Preview table */
+  .preview-wrap {
+    overflow-x: auto;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    margin-top: 0.75rem;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  th {
+    background: var(--bg3);
+    color: var(--muted);
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    font-weight: 500;
+  }
+
+  td {
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    white-space: nowrap;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  th.highlight { color: var(--accent2); }
+  td.highlight { color: var(--accent2); }
+
+  /* Progress */
+  .progress-wrap {
+    margin-top: 1rem;
+  }
+
+  .progress-bar-bg {
+    height: 3px;
+    background: var(--bg3);
+    border-radius: 100px;
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 100px;
+    transition: width 0.3s ease;
+    width: 0%;
+  }
+
+  .progress-label {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* Run button */
+  .btn-run {
+    width: 100%;
+    padding: 14px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: -0.01em;
+    margin-top: 0.25rem;
+  }
+
+  .btn-run:hover:not(:disabled) {
+    background: var(--accent2);
+    transform: translateY(-1px);
+  }
+
+  .btn-run:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* Results */
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 1.25rem;
+  }
+
+  .stat {
+    background: var(--bg3);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .stat .num {
+    font-size: 1.75rem;
+    font-weight: 300;
+    font-family: 'DM Mono', monospace;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat .num.green { color: var(--green); }
+  .stat .num.purple { color: var(--accent2); }
+
+  .stat .lbl {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .btn-dl {
+    width: 100%;
+    padding: 13px;
+    background: transparent;
+    color: var(--green);
+    border: 1.5px solid rgba(74,222,128,0.3);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: -0.01em;
+  }
+
+  .btn-dl:hover {
+    background: var(--green-bg);
+    border-color: var(--green);
+  }
+
+  .log {
+    background: var(--bg3);
+    border-radius: 6px;
+    padding: 1rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    max-height: 140px;
+    overflow-y: auto;
+    line-height: 1.8;
+    margin-top: 1rem;
+  }
+
+  .log .ok { color: var(--green); }
+  .log .info { color: var(--accent2); }
+  .log .warn { color: var(--amber); }
+
+  /* Status */
+  .status-loading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--muted);
+    padding: 1rem 0;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid var(--border2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .hidden { display: none !important; }
+
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-size: 12px;
+    color: #444;
+    font-family: 'DM Mono', monospace;
+    border-top: 1px solid var(--border);
+    margin-top: 4rem;
+  }
+
+  footer a { color: #666; text-decoration: none; }
+  footer a:hover { color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">♀♂</div>
+  <h1>email-gender-detector</h1>
+  <span>v1.0 · dane.gov.pl PESEL</span>
+</header>
+
+<div class="main">
+
+  <div class="hero">
+    <div class="badge">działa lokalnie · zero uploadu danych</div>
+    <h2>Wykryj płeć<br><strong>z adresu email</strong></h2>
+    <p>Wgraj swoją bazę CSV, zmapuj kolumny i pobierz wzbogacony plik z atrybutem <code style="font-family:'DM Mono',monospace;font-size:13px;color:var(--accent2);background:rgba(124,106,247,0.1);padding:2px 6px;border-radius:4px;">sex</code>. Listy imion pobierane są z rejestru PESEL — automatycznie.</p>
+  </div>
+
+  <!-- STEP 1: Upload -->
+  <div class="card" id="card-upload">
+    <div class="card-header">
+      <div class="step-num" id="step1-num">1</div>
+      <h3>Wgraj plik CSV</h3>
+      <span class="subtitle" id="file-name-label"></span>
+    </div>
+    <div class="dropzone" id="dropzone">
+      <input type="file" id="file-input" accept=".csv,.txt">
+      <div class="dropzone-icon">↑</div>
+      <p id="drop-text">Przeciągnij plik CSV lub kliknij aby wybrać</p>
+      <div class="hint">UTF-8 · dowolna nazwa pliku · max 50 MB</div>
+    </div>
+    <div id="preview-section" class="hidden">
+      <div class="preview-wrap">
+        <table id="preview-table"></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: Column mapping -->
+  <div class="card" id="card-mapping">
+    <div class="card-header">
+      <div class="step-num" id="step2-num">2</div>
+      <h3>Zmapuj kolumny</h3>
+    </div>
+    <div class="col-map">
+      <div>
+        <label class="required">Kolumna z adresem email</label>
+        <select id="sel-email" disabled>
+          <option value="">— najpierw wgraj plik —</option>
+        </select>
+      </div>
+      <div>
+        <label>Kolumna z imieniem <span class="optional-tag">opcjonalna</span></label>
+        <select id="sel-firstname" disabled>
+          <option value="">— brak / nieznana —</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: Run -->
+  <div class="card" id="card-run">
+    <div class="card-header">
+      <div class="step-num" id="step3-num">3</div>
+      <h3>Uruchom analizę</h3>
+    </div>
+
+    <div id="status-init" class="status-loading hidden">
+      <div class="spinner"></div>
+      <span id="status-text">Pobieranie list imion z rejestru PESEL…</span>
+    </div>
+
+    <div id="progress-section" class="hidden">
+      <div class="progress-wrap">
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progress-fill"></div>
+        </div>
+        <div class="progress-label" id="progress-label">Przetwarzanie…</div>
+      </div>
+      <div class="log" id="log"></div>
+    </div>
+
+    <div id="results-section" class="hidden">
+      <div class="results-grid">
+        <div class="stat">
+          <div class="num" id="res-total">—</div>
+          <div class="lbl">rekordów</div>
+        </div>
+        <div class="stat">
+          <div class="num green" id="res-pct">—</div>
+          <div class="lbl">z płcią</div>
+        </div>
+        <div class="stat">
+          <div class="num purple" id="res-names">—</div>
+          <div class="lbl">uzupełn. imion</div>
+        </div>
+      </div>
+      <button class="btn-dl" id="btn-download">⬇ Pobierz CSV z wynikami</button>
+    </div>
+
+    <button class="btn-run" id="btn-run" disabled>Uruchom analizę →</button>
+  </div>
+
+</div>
+
+<footer>
+  Dane: <a href="https://dane.gov.pl" target="_blank">dane.gov.pl</a> · Ministerstwo Cyfryzacji · rejestr PESEL 2026
+  &nbsp;·&nbsp; Przetwarzanie odbywa się lokalnie w przeglądarce
+</footer>
+
+<script>
+// ─── Config ───────────────────────────────────────────────────────────────────
+const CSV_URLS = {
+  imiona_k: 'https://api.dane.gov.pl/resources/1159670,lista-imion-zenskich-w-rejestrze-pesel-stan-na-20012026-imie-pierwsze/csv',
+  imiona_m: 'https://api.dane.gov.pl/resources/1159669,lista-imion-meskich-w-rejestrze-pesel-stan-na-20012026-imie-pierwsze/csv',
+  nazwiska_k: 'https://api.dane.gov.pl/resources/1148811,nazwiska-zenskie-stan-na-2026-01-20/csv',
+  nazwiska_m: 'https://api.dane.gov.pl/resources/1148808,nazwiska-meskie-stan-na-2026-01-20/csv',
+};
+
+const TIER1 = 2000, TIER2 = 7000, MIN_SEG = 3, MIN_SUB = 5;
+
+const RECZNA = {
+  piotr:'men',krzysztof:'men',mateusz:'men',rafal:'men',bartosz:'men',lukasz:'men',
+  michal:'men',tomasz:'men',grzegorz:'men',marcin:'men',pawel:'men',adam:'men',
+  robert:'men',marek:'men',andrzej:'men',slawomir:'men',dariusz:'men',mariusz:'men',
+  radoslaw:'men',miroslaw:'men',stanislaw:'men',zbigniew:'men',tadeusz:'men',
+  ryszard:'men',waldemar:'men',wojciech:'men',jaroslaw:'men',przemyslaw:'men',
+  bogdan:'men',leszek:'men',henryk:'men',kazimierz:'men',zygmunt:'men',
+  wieslaw:'men',edward:'men',mieczyslaw:'men',wladyslaw:'men',czeslaw:'men',
+  janusz:'men',dominik:'men',patryk:'men',filip:'men',kacper:'men',oskar:'men',
+  dawid:'men',kamil:'men',adrian:'men',sebastian:'men',damian:'men',daniel:'men',
+  karol:'men',maciej:'men',jakub:'men',hubert:'men',wiktor:'men',szymon:'men',
+  igor:'men',artur:'men',arkadiusz:'men',krystian:'men',alan:'men',albert:'men',
+  alfred:'men',aleksander:'men',fabian:'men',feliks:'men',florian:'men',
+  franciszek:'men',gabriel:'men',jacek:'men',jan:'men',janek:'men',jerzy:'men',
+  jozef:'men',kajetan:'men',konrad:'men',leon:'men',leonard:'men',lucjan:'men',
+  ludwik:'men',maksymilian:'men',marian:'men',mikolaj:'men',norbert:'men',
+  olaf:'men',rajmund:'men',romuald:'men',tymoteusz:'men',urban:'men',
+  walenty:'men',wincenty:'men',witold:'men',zenon:'men',kuba:'men',bartek:'men',
+  lech:'men',mieszko:'men',cezary:'men',eryk:'men',olek:'men',
+  anna:'female',monika:'female',julia:'female',nicola:'female',nicole:'female',
+  weronika:'female',paulina:'female',sandra:'female',dorota:'female',
+  katarzyna:'female',magdalena:'female',agnieszka:'female',joanna:'female',
+  barbara:'female',krystyna:'female',teresa:'female',zofia:'female',halina:'female',
+  danuta:'female',jadwiga:'female',irena:'female',helena:'female',elzbieta:'female',
+  stanislawa:'female',genowefa:'female',bronislawa:'female',wanda:'female',
+  maria:'female',ewa:'female',marta:'female',edyta:'female',justyna:'female',
+  beata:'female',sylwia:'female',renata:'female',iwona:'female',karolina:'female',
+  aleksandra:'female',natalia:'female',klaudia:'female',patrycja:'female',
+  ewelina:'female',aneta:'female',malgorzata:'female',wioleta:'female',
+  wioletta:'female',celina:'female',grazyna:'female',urszula:'female',lidia:'female',
+  lucyna:'female',bozena:'female',miroslawa:'female',jolanta:'female',alicja:'female',
+  zuzanna:'female',oliwia:'female',gabriela:'female',adrianna:'female',
+  dominika:'female',kamila:'female',martyna:'female',angelika:'female',
+  andzelika:'female',anzelika:'female',milena:'female',wiktoria:'female',
+  amelia:'female',maja:'female',zosia:'female',hanna:'female',alina:'female',
+  mariola:'female',izabela:'female',kinga:'female',inga:'female',lucja:'female',
+  cecylia:'female',kornelia:'female',malwina:'female',sabina:'female',emilia:'female',
+  laura:'female',klara:'female',lena:'female',nina:'female',ola:'female',
+  ela:'female',ula:'female',aga:'female',ania:'female',kasia:'female',basia:'female',
+  gosia:'female',asia:'female',jagoda:'female',karolka:'female',natka:'female',
+  tosia:'female',nikola:'female',roza:'female',lila:'female',halyna:'female',
+};
+
+const FORMY_PL = {
+  lukasz:'Łukasz',rafal:'Rafał',pawel:'Paweł',stanislaw:'Stanisław',
+  wladyslaw:'Władysław',slawomir:'Sławomir',radoslaw:'Radosław',
+  miroslaw:'Mirosław',jaroslaw:'Jarosław',przemyslaw:'Przemysław',
+  boguslaw:'Bogusław',boleslaw:'Bolesław',bronislaw:'Bronisław',
+  czeslaw:'Czesław',mieczyslaw:'Mieczysław',wieslaw:'Wiesław',
+  waclaw:'Wacław',jozef:'Józef',michal:'Michał',wojciech:'Wojciech',
+  zbigniew:'Zbigniew',kazimierz:'Kazimierz',tadeusz:'Tadeusz',
+  eugeniusz:'Eugeniusz',mikolaj:'Mikołaj',
+  malgorzata:'Małgorzata',elzbieta:'Elżbieta',stanislawa:'Stanisława',
+  bronislawa:'Bronisława',miroslawa:'Mirosława',grazyna:'Grażyna',
+  bozena:'Bożena',lucja:'Łucja',aleksandra:'Aleksandra',
+  katarzyna:'Katarzyna',magdalena:'Magdalena',joanna:'Joanna',
+  barbara:'Barbara',krystyna:'Krystyna',monika:'Monika',anna:'Anna',
+  maria:'Maria',dorota:'Dorota',iwona:'Iwona',ewelina:'Ewelina',
+  jolanta:'Jolanta',danuta:'Danuta',jadwiga:'Jadwiga',halina:'Halina',
+  irena:'Irena',helena:'Helena',genowefa:'Genowefa',wanda:'Wanda',
+  urszula:'Urszula',renata:'Renata',sylwia:'Sylwia',beata:'Beata',
+  justyna:'Justyna',edyta:'Edyta',marta:'Marta',ewa:'Ewa',
+  karolina:'Karolina',natalia:'Natalia',klaudia:'Klaudia',
+  patrycja:'Patrycja',aneta:'Aneta',celina:'Celina',lidia:'Lidia',
+  lucyna:'Lucyna',alicja:'Alicja',zuzanna:'Zuzanna',oliwia:'Oliwia',
+  gabriela:'Gabriela',adrianna:'Adrianna',dominika:'Dominika',
+  kamila:'Kamila',martyna:'Martyna',angelika:'Angelika',
+  andzelika:'Andżelika',milena:'Milena',wiktoria:'Wiktoria',
+  amelia:'Amelia',maja:'Maja',hanna:'Hanna',alina:'Alina',
+  mariola:'Mariola',izabela:'Izabela',kinga:'Kinga',kornelia:'Kornelia',
+  malwina:'Malwina',sabina:'Sabina',emilia:'Emilia',laura:'Laura',
+  klara:'Klara',julia:'Julia',weronika:'Weronika',paulina:'Paulina',
+  sandra:'Sandra',nikola:'Nikola',jagoda:'Jagoda',halyna:'Halyna',
+};
+
+const KON_NAZW_F = ['owna','ewna','owna','czna','zna','ska','cka'];
+const KON_NAZW_M = ['owski','ewski','nski','cki','ski'];
+const KON_IMION_F = ['etta','ella','illa','inna','anna','iona','ika','ola','ela','ula','nia','sia','cia','ica','ina','ida','iga','ila','ima','le','ne','a'];
+const KON_IMION_M = ['slaw','mir','bor','aw','ek','ik','uk','ok','tr','sz','rf','an','en','in','on','un','ar','er','or','ur','aj','ej','ij','oj','el','ul'];
+
+// ─── State ────────────────────────────────────────────────────────────────────
+let parsedRows = [], headers = [], listyLoaded = false;
+let KW={}, MW={}, NKW={}, NMW={};
+let K1=new Set(),M1=new Set(),K12=new Set(),M12=new Set();
+let subLista=[], nazwyAscii=new Set();
+let resultCsv = '';
+
+// ─── Utils ────────────────────────────────────────────────────────────────────
+function removeDiacritics(s) {
+  return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ł/g,'l').replace(/Ł/g,'L');
+}
+
+function ascii(s){ return removeDiacritics(s).toLowerCase().replace(/[^a-z]/g,''); }
+
+function detectSep(text) {
+  const lines = text.split('\n').slice(0,5).join('\n');
+  return (lines.match(/\t/g)||[]).length > (lines.match(/,/g)||[]).length ? '\t' : ',';
+}
+
+function parseCsvLine(line, sep) {
+  const result = []; let cur = '', inQ = false;
+  for (let i=0; i<line.length; i++) {
+    const c = line[i];
+    if (c==='"') { inQ=!inQ; continue; }
+    if (c===sep && !inQ) { result.push(cur.trim()); cur=''; continue; }
+    cur += c;
+  }
+  result.push(cur.trim());
+  return result;
+}
+
+function parseCsv(text) {
+  const lines = text.split(/\r?\n/).filter(l=>l.trim());
+  if (!lines.length) return { headers:[], rows:[] };
+  const sep = detectSep(text);
+  const headers = parseCsvLine(lines[0], sep);
+  const rows = lines.slice(1).map(l => {
+    const vals = parseCsvLine(l, sep);
+    const obj = {};
+    headers.forEach((h,i) => obj[h] = vals[i]||'');
+    return obj;
+  });
+  return { headers, rows };
+}
+
+// ─── PESEL list loading ───────────────────────────────────────────────────────
+async function fetchList(url, label) {
+  addLog(`Pobieranie: ${label}…`);
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`HTTP ${r.status} dla ${label}`);
+  const text = await r.text();
+  const lines = text.split(/\r?\n/);
+  const sep = detectSep(text);
+  const map = {};
+  let pos = 0;
+  for (const line of lines) {
+    if (!line.trim()) continue;
+    const cols = parseCsvLine(line, sep);
+    const val = cols[0].trim().toLowerCase();
+    if (!val || val === cols[0].trim().toLowerCase().replace(/[a-z]/g,'')) continue;
+    const a = ascii(val);
+    if (a && !(a in map)) { pos++; map[a] = pos; }
+  }
+  addLog(`<span class="ok">✓</span> ${label}: ${Object.keys(map).length.toLocaleString()} wpisów`);
+  return map;
+}
+
+async function loadLists() {
+  document.getElementById('status-init').classList.remove('hidden');
+  document.getElementById('btn-run').disabled = true;
+  try {
+    KW  = await fetchList(CSV_URLS.imiona_k,   'imiona żeńskie');
+    MW  = await fetchList(CSV_URLS.imiona_m,   'imiona męskie');
+    NKW = await fetchList(CSV_URLS.nazwiska_k, 'nazwiska żeńskie');
+    NMW = await fetchList(CSV_URLS.nazwiska_m, 'nazwiska męskie');
+    buildStructures();
+    listyLoaded = true;
+    addLog(`<span class="ok">✓ Wszystkie listy załadowane</span>`);
+    document.getElementById('status-init').classList.add('hidden');
+    updateRunBtn();
+  } catch(e) {
+    addLog(`<span class="warn">⚠ Błąd pobierania: ${e.message}</span>`);
+    document.getElementById('status-text').textContent = 'Błąd pobierania list — sprawdź połączenie';
+  }
+}
+
+function buildStructures() {
+  K1  = new Set(Object.entries(KW).filter(([,p])=>p<=TIER1).map(([k])=>k));
+  M1  = new Set(Object.entries(MW).filter(([,p])=>p<=TIER1).map(([k])=>k));
+  K12 = new Set(Object.entries(KW).filter(([,p])=>p<=TIER2).map(([k])=>k));
+  M12 = new Set(Object.entries(MW).filter(([,p])=>p<=TIER2).map(([k])=>k));
+  nazwyAscii = new Set([...Object.keys(NKW),...Object.keys(NMW)]);
+  const subSet = new Set([
+    ...[...K1].filter(i=>i.length>=MIN_SUB),
+    ...[...M1].filter(i=>i.length>=MIN_SUB),
+    ...Object.keys(RECZNA).filter(i=>i.length>=4),
+  ]);
+  subLista = [...subSet].sort((a,b)=>b.length-a.length);
+}
+
+// ─── Gender logic ─────────────────────────────────────────────────────────────
+function resolveCollision(a) {
+  if (a in RECZNA) return RECZNA[a];
+  for (const k of KON_IMION_F) if (a.endsWith(k)) return 'female';
+  for (const k of KON_IMION_M) if (a.endsWith(k)) return 'men';
+  return '';
+}
+
+function genderFromName(a, K, M) {
+  const wk=K.has(a), wm=M.has(a);
+  if (wk&&!wm) return 'female';
+  if (wm&&!wk) return 'men';
+  if (wk&&wm)  return resolveCollision(a);
+  return '';
+}
+
+function getSegs(email) {
+  if (!email||!email.includes('@')) return [];
+  const loc = email.split('@')[0].toLowerCase();
+  return loc.split(/[._\-0-9]+/)
+    .map(s=>s.replace(/[^a-z]/g,''))
+    .filter(s=>s.length>=MIN_SEG);
+}
+
+function getLok(email) {
+  if (!email||!email.includes('@')) return '';
+  return email.split('@')[0].toLowerCase().replace(/[^a-z]/g,'');
+}
+
+function substringSearch(lok) {
+  const found = [];
+  for (const imie of subLista) {
+    if (!lok.includes(imie)) continue;
+    const p = genderFromName(imie, K1, M1);
+    if (!p) continue;
+    if (found.some(([f])=>imie.includes(f)||f.includes(imie))) continue;
+    found.push([imie, p]);
+  }
+  if (!found.length) return ['',''];
+  const plcie = new Set(found.map(([,p])=>p));
+  if (plcie.size===1) return [found[0][0], [...plcie][0]];
+  return ['',''];
+}
+
+function koncowkaNazwiska(segs) {
+  for (const s of segs) {
+    for (const k of KON_NAZW_F) if (s.endsWith(k)) return 'female';
+    for (const k of KON_NAZW_M) if (s.endsWith(k)) return 'men';
+  }
+  return '';
+}
+
+function formatName(a) {
+  if (a in FORMY_PL) return FORMY_PL[a];
+  return a.charAt(0).toUpperCase()+a.slice(1);
+}
+
+function isPeselName(a) {
+  return (a in RECZNA)||(a in KW)||(a in MW);
+}
+
+function processRow(row, emailCol, fnCol) {
+  const email     = (row[emailCol]||'').trim();
+  const firstname = fnCol ? (row[fnCol]||'').trim() : '';
+
+  let sex='', source='', nameSug='';
+
+  if (firstname) {
+    const a = ascii(firstname);
+    if (a in RECZNA)       { sex=RECZNA[a]; source='fn'; }
+    else {
+      const wk=KW.hasOwnProperty(a)||false, wm=MW.hasOwnProperty(a)||false;
+      if (wk&&!wm)       { sex='female'; source='fn'; }
+      else if (wm&&!wk)  { sex='men';    source='fn'; }
+      else if (wk&&wm)   { sex=resolveCollision(a)||''; source=sex?'fn_col':''; }
+    }
+  }
+
+  if (!sex) {
+    const segs = getSegs(email);
+    for (const seg of segs) {
+      if (seg in RECZNA) {
+        const p = KW.hasOwnProperty(seg)||MW.hasOwnProperty(seg)
+          ? genderFromName(seg,K12,M12) : RECZNA[seg];
+        sex = p||RECZNA[seg]; source='seg';
+        if (sex) { nameSug=formatName(seg); break; }
+      }
+      if (nazwyAscii.has(seg)) continue;
+      const p = genderFromName(seg, K12, M12);
+      if (p) { sex=p; source='seg'; nameSug=formatName(seg); break; }
+    }
+  }
+
+  if (!sex) {
+    const [imie, p] = substringSearch(getLok(email));
+    if (p) { sex=p; source='sub'; nameSug=formatName(imie); }
+  }
+
+  if (!sex) {
+    const p = koncowkaNazwiska(getSegs(email));
+    if (p) { sex=p; source='suf'; }
+  }
+
+  // Fix / suggest firstname
+  let finalFn = firstname;
+  if (firstname) {
+    const a = ascii(firstname);
+    if (firstname===firstname.toUpperCase()&&firstname.length>1) {
+      finalFn = formatName(a);
+    } else if (!isPeselName(a) && nameSug && source==='seg') {
+      finalFn = nameSug;
+    } else {
+      const pl = formatName(a);
+      const pll = pl.toLowerCase();
+      const fnl = firstname.toLowerCase();
+      if (pll!==fnl && (KW.hasOwnProperty(a)||MW.hasOwnProperty(a)||a in RECZNA)) {
+        finalFn = pl;
+      } else if (firstname[0]!==firstname[0].toUpperCase()) {
+        finalFn = firstname[0].toUpperCase()+firstname.slice(1);
+      }
+    }
+  } else if (nameSug) {
+    finalFn = nameSug;
+  }
+
+  return { sex, finalFn, source };
+}
+
+// ─── CSV processing ───────────────────────────────────────────────────────────
+async function runAnalysis() {
+  const emailCol = document.getElementById('sel-email').value;
+  const fnCol    = document.getElementById('sel-firstname').value || null;
+  if (!emailCol) return;
+
+  document.getElementById('btn-run').disabled = true;
+  document.getElementById('progress-section').classList.remove('hidden');
+  document.getElementById('results-section').classList.add('hidden');
+
+  const total = parsedRows.length;
+  let recognized=0, namesFilled=0;
+  const outRows = [];
+  const newHeaders = [...headers, 'sex'];
+
+  const CHUNK = 500;
+  for (let i=0; i<total; i+=CHUNK) {
+    const chunk = parsedRows.slice(i, i+CHUNK);
+    for (const row of chunk) {
+      const {sex, finalFn, source} = processRow(row, emailCol, fnCol);
+      const outRow = {...row};
+      outRow['sex'] = sex;
+      if (fnCol) outRow[fnCol] = finalFn;
+      else if (finalFn) {
+        if (!newHeaders.includes('firstname')) newHeaders.splice(newHeaders.indexOf('sex'),0,'firstname');
+        outRow['firstname'] = finalFn;
+      }
+      if (sex) recognized++;
+      const origFn = fnCol ? (row[fnCol]||'').trim() : '';
+      if (finalFn && finalFn!==origFn) namesFilled++;
+      outRows.push(outRow);
+    }
+    const pct = Math.round((i+CHUNK)/total*100);
+    document.getElementById('progress-fill').style.width = Math.min(pct,100)+'%';
+    document.getElementById('progress-label').textContent =
+      `Przetworzono ${Math.min(i+CHUNK,total).toLocaleString()} / ${total.toLocaleString()} rekordów`;
+    if (i%5000===0) addLog(`Przetworzono ${Math.min(i+CHUNK,total).toLocaleString()} / ${total.toLocaleString()}`);
+    await new Promise(r=>setTimeout(r,0));
+  }
+
+  // Build CSV
+  const finalHeaders = [...new Set(newHeaders)];
+  const lines = [finalHeaders.join(',')];
+  for (const row of outRows) {
+    lines.push(finalHeaders.map(h=>{
+      const v = row[h]||'';
+      return v.includes(',') || v.includes('"') ? `"${v.replace(/"/g,'""')}"` : v;
+    }).join(','));
+  }
+  resultCsv = lines.join('\n');
+
+  const pct = Math.round(recognized/total*100);
+  document.getElementById('res-total').textContent  = total.toLocaleString();
+  document.getElementById('res-pct').textContent    = pct+'%';
+  document.getElementById('res-names').textContent  = namesFilled.toLocaleString();
+
+  addLog(`<span class="ok">✓ Gotowe! Rozpoznano ${pct}% rekordów</span>`);
+  document.getElementById('results-section').classList.remove('hidden');
+  document.getElementById('step3-num').className = 'step-num done';
+}
+
+// ─── File handling ────────────────────────────────────────────────────────────
+function handleFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const { headers: h, rows } = parseCsv(e.target.result);
+    if (!h.length) { alert('Nie można odczytać pliku. Sprawdź format CSV.'); return; }
+    headers = h; parsedRows = rows;
+
+    document.getElementById('file-name-label').textContent = file.name+' · '+rows.length.toLocaleString()+' wierszy';
+    document.getElementById('step1-num').className='step-num done';
+    document.getElementById('dropzone').classList.add('has-file');
+    document.getElementById('drop-text').textContent = '✓ '+file.name;
+
+    renderPreview(h, rows.slice(0,5));
+    populateSelects(h);
+
+    if (!listyLoaded) loadLists();
+    else updateRunBtn();
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function renderPreview(h, rows) {
+  const t = document.getElementById('preview-table');
+  const emailCol = guessEmailCol(h);
+  const fnCol    = guessFnCol(h);
+  t.innerHTML = '<thead><tr>'+h.map(hh=>`<th class="${hh===emailCol?'highlight':hh===fnCol?'highlight':''}">${hh}</th>`).join('')+'</tr></thead>'
+    +'<tbody>'+rows.map(r=>'<tr>'+h.map(hh=>`<td class="${hh===emailCol||hh===fnCol?'highlight':''}">${r[hh]||''}</td>`).join('')+'</tr>').join('')+'</tbody>';
+  document.getElementById('preview-section').classList.remove('hidden');
+}
+
+function populateSelects(h) {
+  const selE = document.getElementById('sel-email');
+  const selF = document.getElementById('sel-firstname');
+  selE.innerHTML = '<option value="">— wybierz kolumnę —</option>';
+  selF.innerHTML = '<option value="">— brak / nieznana —</option>';
+  h.forEach(hh => {
+    selE.innerHTML += `<option value="${hh}">${hh}</option>`;
+    selF.innerHTML += `<option value="${hh}">${hh}</option>`;
+  });
+  const ge = guessEmailCol(h), gf = guessFnCol(h);
+  if (ge) selE.value = ge;
+  if (gf) selF.value = gf;
+  selE.disabled = false; selF.disabled = false;
+  selE.addEventListener('change', updateRunBtn);
+}
+
+function guessEmailCol(h) {
+  return h.find(c=>/(email|mail|e-mail)/i.test(c)) || h.find(c=>/e_?mail/i.test(c)) || '';
+}
+
+function guessFnCol(h) {
+  return h.find(c=>/(firstname|first_name|imie|imię|name|fname)/i.test(c)) || '';
+}
+
+function updateRunBtn() {
+  const ready = parsedRows.length>0 && listyLoaded && document.getElementById('sel-email').value;
+  document.getElementById('btn-run').disabled = !ready;
+  if (ready && !listyLoaded) {
+    document.getElementById('btn-run').textContent = 'Ładowanie list…';
+  }
+}
+
+// ─── Download ─────────────────────────────────────────────────────────────────
+function downloadResult() {
+  const blob = new Blob(['\uFEFF'+resultCsv], {type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'baza_z_plcia.csv';
+  a.click();
+}
+
+// ─── Log ──────────────────────────────────────────────────────────────────────
+function addLog(msg) {
+  const log = document.getElementById('log');
+  log.innerHTML += `<div>${msg}</div>`;
+  log.scrollTop = log.scrollHeight;
+}
+
+// ─── Events ───────────────────────────────────────────────────────────────────
+const dz = document.getElementById('dropzone');
+const fi = document.getElementById('file-input');
+
+fi.addEventListener('change', e=>handleFile(e.target.files[0]));
+dz.addEventListener('dragover', e=>{e.preventDefault();dz.classList.add('dragover');});
+dz.addEventListener('dragleave', ()=>dz.classList.remove('dragover'));
+dz.addEventListener('drop', e=>{
+  e.preventDefault(); dz.classList.remove('dragover');
+  handleFile(e.dataTransfer.files[0]);
+});
+
+document.getElementById('btn-run').addEventListener('click', runAnalysis);
+document.getElementById('btn-download').addEventListener('click', downloadResult);
+</script>
+</body>
+</html>
