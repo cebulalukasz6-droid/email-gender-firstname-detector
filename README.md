@@ -23,7 +23,7 @@ Narzędzie do wykrywania płci i uzupełniania imion na podstawie adresów email
 
 ## Format wejściowy
 
-Plik CSV z dowolną nazwą, kodowanie UTF-8. Wymagana kolumna z adresami email. Kolumna z imieniem jest opcjonalna — jeśli jej nie ma, skrypt spróbuje wyciągnąć imię z adresu email.
+Plik CSV z dowolną nazwą, kodowanie UTF-8. Wymagana kolumna z adresami email. Kolumna z imieniem jest opcjonalna — jest ona dodatkową informacją dla narzędzia. Jeśli jej nie ma, nic się nie dzieje - narzędzie wyciągnie imię z adresu email.
 
 ## Technologie
 
